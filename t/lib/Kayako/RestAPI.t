@@ -28,8 +28,30 @@ ok $r->{'signature'},  "Request has signature";
 ok $r->{'salt'},  "Request has salt";
 is length $r->{'salt'}, 10, "Salt length is 10";
 
-# use Data::Dumper;
-# warn Dumper $kayako_api->_prepare_request;
+my $a = [
+    {
+        'title' => { text => 'In progress' },
+        'id' => => { text => 1 },
+        'foo' => { text => 'bar' }
+    },
+    {
+        'title' => { text => 'Closed' },
+        'id' => { text => 3 },
+        'foo' => { text => 'baz' }
+    }
+];
 
+my $b = [
+    {
+        'title' => 'In progress',
+        'id' => 1,
+    },
+    {
+        'title' => 'Closed',
+        'id' => 3,
+    }
+];
+
+is_deeply $kayako_api->filter_fields($a), $b, 'filter_fields is working as expected';
 
 done_testing;

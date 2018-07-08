@@ -229,10 +229,11 @@ sub create_ticket {
 
 =method filter_fields
 
-Filter fields of API request result
+Filter fields of API request result and trim content_key
 
 By default leave only id, title and module fields
 
+    my $arrayref = $kayako_api->get_hash('/Some/API/Endpoint');
     $kayako_api->filter_fields($arrayref); 
 
 =cut
@@ -249,7 +250,24 @@ sub filter_fields {
 
 =method get_departements
 
-$kayako_api->get_departements(); # return an arrayref
+    $kayako_api->get_departements();
+
+Return an arrayref of hashes with title, module and id keys like
+
+[
+    {
+        'module' => 'tickets',
+        'title' => 'Hard drives department',
+        'id' => '5'
+    },
+    {
+        'id' => '6',
+        'module' => 'tickets',
+        'title' => 'Flash drives department'
+    }
+]
+
+API endpoint is /Base/Department/
 
 =cut
 
@@ -267,20 +285,22 @@ sub get_departements {
 
 Return an arrayref of hashes with title and id keys like
 
-[
-    {
-        'title' => 'In progress',
-        'id' => '1'
-    },
-    {
-        'title' => 'Closed',
-        'id' => '3'
-    },
-    {
-        'id' => '4',
-        'title' => 'New'
-    }
-]
+    [
+        {
+            'title' => 'In progress',
+            'id' => '1'
+        },
+        {
+            'title' => 'Closed',
+            'id' => '3'
+        },
+        {
+            'id' => '4',
+            'title' => 'New'
+        }
+    ]
+    
+API endpoint is /Tickets/TicketStatus/
 
 =cut
 
@@ -308,6 +328,8 @@ Return an arrayref of hashes with title and id keys like
             'title' => 'Urgent'
         },
     ]
+    
+API endpoint is /Tickets/TicketPriority/
 
 =cut
 
@@ -339,7 +361,7 @@ Return an arrayref of hashes with title and id keys like
     }
 ];
 
-See more: 
+API endpoint is /Tickets/TicketType/
 
 =cut
 
@@ -367,7 +389,7 @@ E.g.
             'lastname' => { 'text' => 'Serikov' },
             'enabledst' => { 'text' => '0'},
             'username' => { 'text' => 'pavelsr' },
-            'isenabled' => { 'text' => '1' },
+            'isenabled' => { 'text' => '1' }6,
             'staffgroupid' => { 'text' => '4' },
             'greeting' => {},
             'timezone' => {},
@@ -378,7 +400,7 @@ E.g.
         }
     ]
     
-     
+API endpoint is /Base/Staff/
 
 =cut
 
