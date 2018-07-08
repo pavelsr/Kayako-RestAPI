@@ -4,7 +4,7 @@ Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako
 
 # VERSION
 
-version 0.01
+version 0.02
 
 # SYNOPSIS
 
@@ -47,15 +47,44 @@ You can test you controller with [API Test Controller](https://kayako.atlassian.
 
 # METHODS
 
+## xml2obj
+
+Convert xml API response to hash using XML::XML2JSON::xml2obj method
+
+    my $xml = $kayako_api->get('/Some/Endpoint');
+    my $hash = $kayako_api->xml2obj($xml);
+
+Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
+
+## get\_hash
+
+Wrapper under abstract GET API query, return hash
+
+    $kayako_api->get_hash('/Some/API/Endpoint');
+
+Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
+
+## get\_ticket\_xml
+
+Get info about ticket in native XML
+
+    $kayako_api->get_ticket_xml($ticket_id);
+
+## get\_ticket\_hash
+
+    $kayako_api->get_ticket_hash($ticket_id);
+
 ## change\_ticket\_owner
 
-$kayako\_api->change\_ticket\_owner($ticket\_id, $new\_owner\_id);
+    $kayako_api->change_ticket_owner($ticket_id, $new_owner_id);
 
 ## make\_unassigned
 
-$kayako\_api->make\_unassigned($ticket\_id);
+    $kayako_api->make_unassigned($ticket_id);
 
-equalent to $kayako\_api->change\_ticket\_owner($ticket\_id, 0);
+equalent to 
+
+    $kayako_api->change_ticket_owner($ticket_id, 0);
 
 ## create\_ticket
 
@@ -63,9 +92,11 @@ Check a list of required arguments here: [https://kayako.atlassian.net/wiki/disp
 
 ## filter\_fields
 
-Private method. Filter fields of API request result
+Filter fields of API request result
 
-By default return only id, title and module fields
+By default leave only id, title and module fields
+
+    $kayako_api->filter_fields($arrayref); 
 
 ## get\_departements
 
@@ -73,19 +104,92 @@ $kayako\_api->get\_departements(); # return an arrayref
 
 ## get\_ticket\_statuses
 
-$kayako\_api->get\_ticket\_statuses(); # return an arrayref
+    $kayako_api->get_ticket_statuses(); 
+
+Return an arrayref of hashes with title and id keys like
+
+\[
+    {
+        'title' => 'In progress',
+        'id' => '1'
+    },
+    {
+        'title' => 'Closed',
+        'id' => '3'
+    },
+    {
+        'id' => '4',
+        'title' => 'New'
+    }
+\]
 
 ## get\_ticket\_priorities
 
-$kayako\_api->get\_ticket\_priorities(); # return an arrayref
+        $kayako_api->get_ticket_priorities();
+
+Return an arrayref of hashes with title and id keys like
+
+    [
+        {
+            'title' => 'Normal',
+            'id' => '1'
+        },
+        {
+            'id' => '3',
+            'title' => 'Urgent'
+        },
+    ]
 
 ## get\_ticket\_types
 
-$kayako\_api->get\_ticket\_types(); # return an arrayref
+    $kayako_api->get_ticket_types();
+
+Return an arrayref of hashes with title and id keys like
+
+\[
+    {
+        'id' => '1',
+        'title' => 'Case'
+    },
+    {
+        'id' => '3',
+        'title' => 'Bug'
+    },
+    {
+        'id' => '5',
+        'title' => 'Feedback'
+    }
+\];
+
+See more: 
 
 ## get\_staff
 
-$kayako\_api->get\_staff(); # return an arrayref
+    $kayako_api->get_staff();
+
+Return an arrayref of hashes with keys like firstname, lastname, username etc.
+
+E.g.
+
+    [ 
+        { ... },
+        {
+            'id' => { 'text' => '12' },
+            'firstname' => { 'text' => 'Pavel' },
+            'email' => { 'text' => 'pavelsr@cpan.org' },
+            'lastname' => { 'text' => 'Serikov' },
+            'enabledst' => { 'text' => '0'},
+            'username' => { 'text' => 'pavelsr' },
+            'isenabled' => { 'text' => '1' },
+            'staffgroupid' => { 'text' => '4' },
+            'greeting' => {},
+            'timezone' => {},
+            'designation' => { 'text' => 'TS' },
+            'mobilenumber' => {},
+            'signature' => {},
+            'fullname' => { 'text' => 'Pavel Serikov' }
+        }
+    ]
 
 # AUTHOR
 

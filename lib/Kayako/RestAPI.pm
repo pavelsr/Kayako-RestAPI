@@ -77,6 +77,17 @@ sub _prepare_request {
   return $hash;
 }
 
+=method xml2obj
+
+Convert xml API response to hash using XML::XML2JSON::xml2obj method
+
+    my $xml = $kayako_api->get('/Some/Endpoint');
+    my $hash = $kayako_api->xml2obj($xml);
+    
+Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
+
+=cut
+
 sub xml2obj {
   my ($self, $xml) = @_;
   $self->{xml2json}->xml2obj($xml);
@@ -112,19 +123,42 @@ sub delete {
   $self->_query('delete', $route, $params);
 }
 
- # abstract api GET _query. return hash
- # can potentially crash is returned xml isn't valid
+=method get_hash
+
+Wrapper under abstract GET API query, return hash
+
+    $kayako_api->get_hash('/Some/API/Endpoint');
+    
+Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
+
+=cut
+
 sub get_hash {
   my ($self, $route, $params) = @_;
   my $xml = $self->get($route, $params);
   return $self->{xml2json}->xml2obj($xml);
 }
 
-# Get info about ticket in native XML
+
+=method get_ticket_xml
+
+Get info about ticket in native XML
+
+    $kayako_api->get_ticket_xml($ticket_id);
+
+=cut
+
 sub get_ticket_xml {
   my ($self, $ticket_id, $params) = @_;
   return $self->get("/Tickets/Ticket/".$ticket_id."/", $params);
 }
+
+
+=method get_ticket_hash
+
+    $kayako_api->get_ticket_hash($ticket_id);
+
+=cut
 
 sub get_ticket_hash {
   my ($self, $ticket_id) = @_;
@@ -142,7 +176,7 @@ sub get_ticket_hash {
 
 =method change_ticket_owner
 
-$kayako_api->change_ticket_owner($ticket_id, $new_owner_id);
+    $kayako_api->change_ticket_owner($ticket_id, $new_owner_id);
 
 =cut
 
@@ -167,9 +201,11 @@ sub change_ticket_owner {
 
 =method make_unassigned
 
-$kayako_api->make_unassigned($ticket_id);
+    $kayako_api->make_unassigned($ticket_id);
 
-equalent to $kayako_api->change_ticket_owner($ticket_id, 0);
+equalent to 
+
+    $kayako_api->change_ticket_owner($ticket_id, 0);
 
 =cut
 
@@ -193,9 +229,11 @@ sub create_ticket {
 
 =method filter_fields
 
-Private method. Filter fields of API request result
+Filter fields of API request result
 
-By default return only id, title and module fields
+By default leave only id, title and module fields
+
+    $kayako_api->filter_fields($arrayref); 
 
 =cut
 
@@ -225,7 +263,24 @@ sub get_departements {
 
 =method get_ticket_statuses
 
-$kayako_api->get_ticket_statuses(); # return an arrayref
+    $kayako_api->get_ticket_statuses(); 
+
+Return an arrayref of hashes with title and id keys like
+
+[
+    {
+        'title' => 'In progress',
+        'id' => '1'
+    },
+    {
+        'title' => 'Closed',
+        'id' => '3'
+    },
+    {
+        'id' => '4',
+        'title' => 'New'
+    }
+]
 
 =cut
 
@@ -239,7 +294,20 @@ sub get_ticket_statuses {
 
 =method get_ticket_priorities
 
-$kayako_api->get_ticket_priorities(); # return an arrayref
+        $kayako_api->get_ticket_priorities();
+
+Return an arrayref of hashes with title and id keys like
+
+    [
+        {
+            'title' => 'Normal',
+            'id' => '1'
+        },
+        {
+            'id' => '3',
+            'title' => 'Urgent'
+        },
+    ]
 
 =cut
 
@@ -252,7 +320,26 @@ sub get_ticket_priorities {
 
 =method get_ticket_types
 
-$kayako_api->get_ticket_types(); # return an arrayref
+    $kayako_api->get_ticket_types();
+
+Return an arrayref of hashes with title and id keys like
+
+[
+    {
+        'id' => '1',
+        'title' => 'Case'
+    },
+    {
+        'id' => '3',
+        'title' => 'Bug'
+    },
+    {
+        'id' => '5',
+        'title' => 'Feedback'
+    }
+];
+
+See more: 
 
 =cut
 
@@ -265,7 +352,33 @@ sub get_ticket_types {
 
 =method get_staff
 
-$kayako_api->get_staff(); # return an arrayref
+    $kayako_api->get_staff();
+    
+Return an arrayref of hashes with keys like firstname, lastname, username etc.
+
+E.g.
+
+    [ 
+        { ... },
+        {
+            'id' => { 'text' => '12' },
+            'firstname' => { 'text' => 'Pavel' },
+            'email' => { 'text' => 'pavelsr@cpan.org' },
+            'lastname' => { 'text' => 'Serikov' },
+            'enabledst' => { 'text' => '0'},
+            'username' => { 'text' => 'pavelsr' },
+            'isenabled' => { 'text' => '1' },
+            'staffgroupid' => { 'text' => '4' },
+            'greeting' => {},
+            'timezone' => {},
+            'designation' => { 'text' => 'TS' },
+            'mobilenumber' => {},
+            'signature' => {},
+            'fullname' => { 'text' => 'Pavel Serikov' }
+        }
+    ]
+    
+     
 
 =cut
 
