@@ -1,6 +1,6 @@
 package Kayako::RestAPI;
 
-# ABSTRACT: Perl library for working with L<Kayako REST API|https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API>
+# ABSTRACT: Perl library for working with L<Kayako REST API|https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API>. Tested with
 
 =head1 SYNOPSIS
 
@@ -254,18 +254,18 @@ sub filter_fields {
 
 Return an arrayref of hashes with title, module and id keys like
 
-[
-    {
-        'module' => 'tickets',
-        'title' => 'Hard drives department',
-        'id' => '5'
-    },
-    {
-        'id' => '6',
-        'module' => 'tickets',
-        'title' => 'Flash drives department'
-    }
-]
+    [
+        {
+            'module' => 'tickets',
+            'title' => 'Hard drives department',
+            'id' => '5'
+        },
+        {
+            'id' => '6',
+            'module' => 'tickets',
+            'title' => 'Flash drives department'
+        }
+    ]
 
 API endpoint is /Base/Department/
 
@@ -346,20 +346,20 @@ sub get_ticket_priorities {
 
 Return an arrayref of hashes with title and id keys like
 
-[
-    {
-        'id' => '1',
-        'title' => 'Case'
-    },
-    {
-        'id' => '3',
-        'title' => 'Bug'
-    },
-    {
-        'id' => '5',
-        'title' => 'Feedback'
-    }
-];
+    [
+        {
+            'id' => '1',
+            'title' => 'Case'
+        },
+        {
+            'id' => '3',
+            'title' => 'Bug'
+        },
+        {
+            'id' => '5',
+            'title' => 'Feedback'
+        }
+    ];
 
 API endpoint is /Tickets/TicketType/
 

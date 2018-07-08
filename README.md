@@ -1,10 +1,10 @@
 # NAME
 
-Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API)
+Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API). Tested with Kayako v
 
 # VERSION
 
-version 0.02
+version 0.04
 
 # SYNOPSIS
 
@@ -92,15 +92,33 @@ Check a list of required arguments here: [https://kayako.atlassian.net/wiki/disp
 
 ## filter\_fields
 
-Filter fields of API request result
+Filter fields of API request result and trim content\_key
 
 By default leave only id, title and module fields
 
+    my $arrayref = $kayako_api->get_hash('/Some/API/Endpoint');
     $kayako_api->filter_fields($arrayref); 
 
 ## get\_departements
 
-$kayako\_api->get\_departements(); # return an arrayref
+    $kayako_api->get_departements();
+
+Return an arrayref of hashes with title, module and id keys like
+
+    [
+        {
+            'module' => 'tickets',
+            'title' => 'Hard drives department',
+            'id' => '5'
+        },
+        {
+            'id' => '6',
+            'module' => 'tickets',
+            'title' => 'Flash drives department'
+        }
+    ]
+
+API endpoint is /Base/Department/
 
 ## get\_ticket\_statuses
 
@@ -108,20 +126,22 @@ $kayako\_api->get\_departements(); # return an arrayref
 
 Return an arrayref of hashes with title and id keys like
 
-\[
-    {
-        'title' => 'In progress',
-        'id' => '1'
-    },
-    {
-        'title' => 'Closed',
-        'id' => '3'
-    },
-    {
-        'id' => '4',
-        'title' => 'New'
-    }
-\]
+    [
+        {
+            'title' => 'In progress',
+            'id' => '1'
+        },
+        {
+            'title' => 'Closed',
+            'id' => '3'
+        },
+        {
+            'id' => '4',
+            'title' => 'New'
+        }
+    ]
+
+API endpoint is /Tickets/TicketStatus/
 
 ## get\_ticket\_priorities
 
@@ -140,28 +160,30 @@ Return an arrayref of hashes with title and id keys like
         },
     ]
 
+API endpoint is /Tickets/TicketPriority/
+
 ## get\_ticket\_types
 
     $kayako_api->get_ticket_types();
 
 Return an arrayref of hashes with title and id keys like
 
-\[
-    {
-        'id' => '1',
-        'title' => 'Case'
-    },
-    {
-        'id' => '3',
-        'title' => 'Bug'
-    },
-    {
-        'id' => '5',
-        'title' => 'Feedback'
-    }
-\];
+    [
+        {
+            'id' => '1',
+            'title' => 'Case'
+        },
+        {
+            'id' => '3',
+            'title' => 'Bug'
+        },
+        {
+            'id' => '5',
+            'title' => 'Feedback'
+        }
+    ];
 
-See more: 
+API endpoint is /Tickets/TicketType/
 
 ## get\_staff
 
@@ -180,7 +202,7 @@ E.g.
             'lastname' => { 'text' => 'Serikov' },
             'enabledst' => { 'text' => '0'},
             'username' => { 'text' => 'pavelsr' },
-            'isenabled' => { 'text' => '1' },
+            'isenabled' => { 'text' => '1' }6,
             'staffgroupid' => { 'text' => '4' },
             'greeting' => {},
             'timezone' => {},
@@ -191,13 +213,15 @@ E.g.
         }
     ]
 
+API endpoint is /Base/Staff/
+
 # AUTHOR
 
 Pavel Serikov <pavelsr@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2016 by Pavel Serikov.
+This software is copyright (c) 2018 by Pavel Serikov.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
