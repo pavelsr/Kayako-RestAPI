@@ -196,5 +196,50 @@ subtest "get_staff" => sub {
     
 };
 
+use Data::Dumper;
+subtest "get_ticket_hash" => sub {
+    
+    my @keys = qw/
+        statusid 
+        lastactivity 
+        lastuserreply
+        userorganization
+        templategroupid
+        templategroupname
+        posts
+        userid
+        laststaffreply
+        ownerstaffid
+        creator
+        nextreplydue
+        creationmode
+        departmentid
+        fullname
+        note
+        ipaddress
+        slaplanid
+        replies
+        priorityid
+        tags
+        attr_id
+        typeid
+        attr_flagtype
+        ownerstaffname
+        escalationruleid
+        creationtype
+        email
+        isescalated
+        subject
+        userorganizationid
+        resolutiondue
+        displayid
+        creationtime
+        lastreplier
+    /;
+    my $res = $kayako_api->get_ticket_hash(1000);
+    for my $k (@keys) {
+        ok defined $res->{$k}, "element has $k key";
+    }
+};
 
 done_testing;

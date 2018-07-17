@@ -415,7 +415,7 @@ sub get_staff {
 # perl -Ilib -MData::Dumper -MKayako::RestAPI -E 'print Dumper Kayako::RestAPI::_samples();'
 sub _samples {
     return [
-        { method => 'get', route => '/Tickets/Ticket/1000', sample_file => 'ticket.xml', params => {} },
+        { method => 'get', route => '/Tickets/Ticket/1000/', sample_file => 'ticket.xml', params => {} },
         { method => 'get', route => '/Base/Department/', sample_file => 'departments.xml' },
         { method => 'get', route => '/Tickets/TicketStatus/', sample_file => 'ticket_status.xml' },
         { method => 'get', route => '/Tickets/TicketPriority/', sample_file => 'ticket_priority.xml' },
