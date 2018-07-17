@@ -4,7 +4,7 @@ Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako
 
 # VERSION
 
-version 0.04
+version 0.05
 
 # SYNOPSIS
 

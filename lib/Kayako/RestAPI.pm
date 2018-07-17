@@ -390,7 +390,7 @@ E.g.
             'lastname' => { 'text' => 'Serikov' },
             'enabledst' => { 'text' => '0'},
             'username' => { 'text' => 'pavelsr' },
-            'isenabled' => { 'text' => '1' }6,
+            'isenabled' => { 'text' => '1' },
             'staffgroupid' => { 'text' => '4' },
             'greeting' => {},
             'timezone' => {},
