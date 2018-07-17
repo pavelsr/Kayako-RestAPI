@@ -42,15 +42,29 @@ package Kayako::RestAPI;
 
 You can test you controller with L<API Test Controller|https://kayako.atlassian.net/wiki/display/DEV/API+Test+Controller>
 
+Attention: since version 0.06 (migration from XML::XML2JSON to XML::LibXML::Simple) response structure of following methods was changed from array to hash
+
+    get_ticket_hash
+    get_departements
+    get_ticket_statuses
+    get_ticket_priorities
+    get_ticket_types
+
+If you need to use old structure please add _old suffix to method ;)
+
+WORK UNDER THIS MODULE IS IN PROGRESS, HELP WANTED, ESPECIALLY FOR WRITING DOCS
+
 =cut
 
 use common::sense;
 use Mojo::UserAgent;
 use Digest::SHA qw(hmac_sha256_base64);
 use File::Slurp;
-use XML::XML2JSON;
+use XML::LibXML::Simple;
 use utf8;
 use Data::Dumper;
+
+my $xs = XML::LibXML::Simple->new();
 
 sub new {
     my $class = shift;
@@ -58,7 +72,6 @@ sub new {
     $o->{auth_hash} = shift;
     $o->{xml2json_options} = shift;
     $o->{xml2json_options} = { content_key => 'text', pretty => 1, attribute_prefix => 'attr_' } if not defined $o->{xml2json_options};
-    $o->{xml2json} = XML::XML2JSON->new(%{$o->{xml2json_options}});
     $o->{ua} = Mojo::UserAgent->new;
     bless $o, $class;
     return $o;
@@ -91,7 +104,7 @@ Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
 
 sub xml2obj {
   my ($self, $xml) = @_;
-  $self->{xml2json}->xml2obj($xml);
+  $xs->XMLin($xml);
 }
 
  # abstract api GET/POST/PUT/DELETE _query. return plain xml
@@ -137,7 +150,7 @@ Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
 sub get_hash {
   my ($self, $route, $params) = @_;
   my $xml = $self->get($route, $params);
-  return $self->{xml2json}->xml2obj($xml);
+  return $self->xml2obj($xml);
 }
 
 
@@ -170,7 +183,7 @@ sub get_ticket_hash {
     # $hash->{'ticket_id'} = $ticket_id;
     # $hash->{'is_found'} = 0; 
   } else {
-    $hash = $self->{xml2json}->xml2obj($xml)->{tickets}{ticket};
+    $hash = $self->xml2obj($xml)->{ticket};
   }
   return $hash;
 }
@@ -230,7 +243,9 @@ sub create_ticket {
 
 =method filter_fields
 
-Filter fields of API request result and trim content_key
+THIS METHOD LEFT HERE FOR COMPATIBILITY AND WILL BE REMOVED IN FUTURE RELEASES
+
+Filter fields of API request result and trim content_key added by XML::XML2JSON
 
 By default leave only id, title and module fields
 
@@ -249,7 +264,25 @@ sub filter_fields {
    return $a; 
 }
 
-=method get_departements
+
+
+# Convert nested hash with id keys into array of hashes. For compatibility with old API
+# Usage is same as filter_fields
+sub _postprocess_libxml {
+   my ($self, $hash) = @_;   # array of hashes
+   my @res;
+   for my $k (sort keys %$hash) {
+       # my $j = { map { $_ => $hash->{$k} } grep { exists $hash->{$k} } qw/id title module fullname/ };
+       # warn "Element:".Dumper $j;
+       my $j = { id => $k, title => $hash->{$k}{title}, module => $hash->{$k}{module} };
+       push @res, $j;
+       # push @res, $j;
+   }
+   return \@res;
+}
+
+
+=method get_departements_old
 
     $kayako_api->get_departements();
 
@@ -275,12 +308,16 @@ API endpoint is /Base/Department/
 sub get_departements {
   my $self = shift;
   my $xml = $self->get('/Base/Department/');
-  my $a = $self->xml2obj($xml)->{departments}{department};  # array
-  $self->filter_fields($a); 
+  $self->xml2obj($xml)->{department};
+}
+
+sub get_departements_old { 
+    my $self = shift;
+    $self->_postprocess_libxml( $self->get_departements );
 }
 
 
-=method get_ticket_statuses
+=method get_ticket_statuses_old
 
     $kayako_api->get_ticket_statuses(); 
 
@@ -309,11 +346,15 @@ API endpoint is /Tickets/TicketStatus/
 sub get_ticket_statuses {
   my $self = shift;
   my $xml = $self->get('/Tickets/TicketStatus/');
-  my $a = $self->xml2obj($xml)->{ticketstatuses}{ticketstatus};  # array
-  $self->filter_fields($a); 
+  $self->xml2obj($xml)->{ticketstatus};
 }
 
-=method get_ticket_priorities
+sub get_ticket_statuses_old {
+  my $self = shift;
+  $self->_postprocess_libxml( $self->get_ticket_statuses );
+}
+
+=method get_ticket_priorities_old
 
         $kayako_api->get_ticket_priorities();
 
@@ -337,11 +378,15 @@ API endpoint is /Tickets/TicketPriority/
 sub get_ticket_priorities {
   my $self = shift;
   my $xml = $self->get('/Tickets/TicketPriority/');
-  my $a = $self->xml2obj($xml)->{ticketpriorities}{ticketpriority};  # array
-  $self->filter_fields($a); 
+  $self->xml2obj($xml)->{ticketpriority};
 }
 
-=method get_ticket_types
+sub get_ticket_priorities_old {
+  my $self = shift;
+  $self->_postprocess_libxml( $self->get_ticket_priorities );
+}
+
+=method get_ticket_types_old
 
     $kayako_api->get_ticket_types();
 
@@ -369,11 +414,16 @@ API endpoint is /Tickets/TicketType/
 sub get_ticket_types {
   my $self = shift;
   my $xml = $self->get('/Tickets/TicketType/');
-  my $a = $self->xml2obj($xml)->{tickettypes}{tickettype};  # array
-  $self->filter_fields($a); 
+  $self->xml2obj($xml)->{tickettype};  # array
 }
 
-=method get_staff
+sub get_ticket_types_old {
+  my $self = shift;
+  $self->_postprocess_libxml( $self->get_ticket_types );
+}
+
+
+=method get_staff_old
 
     $kayako_api->get_staff();
     
@@ -408,8 +458,14 @@ API endpoint is /Base/Staff/
 sub get_staff {
   my $self = shift;
   my $xml = $self->get('/Base/Staff/');
-  $self->xml2obj($xml)->{staffusers}{staff};  # array
+  $self->xml2obj($xml)->{staff};  # array
 }
+
+sub get_staff_old {
+  my $self = shift;
+  $self->_postprocess_libxml( $self->get_staff );
+}
+
 
 # HTTP mocks
 # perl -Ilib -MData::Dumper -MKayako::RestAPI -E 'print Dumper Kayako::RestAPI::_samples();'
