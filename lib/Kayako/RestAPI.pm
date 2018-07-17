@@ -47,6 +47,7 @@ You can test you controller with L<API Test Controller|https://kayako.atlassian.
 use common::sense;
 use Mojo::UserAgent;
 use Digest::SHA qw(hmac_sha256_base64);
+use File::Slurp;
 use XML::XML2JSON;
 use utf8;
 use Data::Dumper;
@@ -409,5 +410,38 @@ sub get_staff {
   my $xml = $self->get('/Base/Staff/');
   $self->xml2obj($xml)->{staffusers}{staff};  # array
 }
+
+# HTTP mocks
+# perl -Ilib -MData::Dumper -MKayako::RestAPI -E 'print Dumper Kayako::RestAPI::_samples();'
+sub _samples {
+    return [
+        { method => 'get', route => '/Tickets/Ticket/1000', sample_file => 'ticket.xml', params => {} },
+        { method => 'get', route => '/Base/Department/', sample_file => 'departments.xml' },
+        { method => 'get', route => '/Tickets/TicketStatus/', sample_file => 'ticket_status.xml' },
+        { method => 'get', route => '/Tickets/TicketPriority/', sample_file => 'ticket_priority.xml' },
+        { method => 'get', route => '/Tickets/TicketType/', sample_file => 'ticket_type.xml' },
+        { method => 'get', route => '/Base/Staff/', sample_file => 'staff.xml' }
+    ];
+}
+
+# generate ethalon data to t/lib/Kayako/samples
+# perl -Ilib -MData::Dumper -MKayako::RestAPI -E 'print Dumper Kayako::RestAPI::_generate_t_samples();'
+sub _generate_t_samples {
+    my @samples = @{__PACKAGE__->_samples};
+    my $k = Kayako::RestAPI->new(
+        { 
+            api_url => '', 
+            api_key => '', 
+            secret_key => '' 
+        }
+    );
+    
+    for my $s (@samples) {
+        my $data = $k->_query($s->{method}, $s->{route});
+        write_file ( 't/lib/Kayako/samples/'.$s->{sample_file}, { binmode => ':raw' }, $data );
+    }
+    
+}
+
 
 1;

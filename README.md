@@ -1,6 +1,6 @@
 # NAME
 
-Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API). Tested with Kayako v
+Kayako::RestAPI - Perl library for working with [Kayako REST API](https://kayako.atlassian.net/wiki/display/DEV/Kayako+REST+API). Tested with
 
 # VERSION
 
