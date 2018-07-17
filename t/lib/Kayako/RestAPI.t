@@ -32,7 +32,7 @@ subtest "_prepare_request" => sub {
 
 };
 
-subtest "_prepare_request" => sub {
+subtest "filter_fields" => sub {
 
     my $a = [
         {
