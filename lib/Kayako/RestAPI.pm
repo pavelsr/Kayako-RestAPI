@@ -66,6 +66,8 @@ use Data::Dumper;
 
 my $xs = XML::LibXML::Simple->new();
 
+say "Load local lib";
+
 sub new {
     my $class = shift;
     my $o = {};
@@ -104,6 +106,19 @@ Can potentially crash is returned xml isn't valid (when XML::XML2JSON dies)
 
 sub xml2obj {
   my ($self, $xml) = @_;
+  
+  local $SIG{__DIE__} = sub {
+      my $die_str = '';
+      if ( ref $_[0] eq 'XML::LibXML::Error' ) {
+        $die_str = "XML::LibXML::Error\n";
+        $die_str.= "Message : ".$_[0]->message();
+      } else {
+        $die_str = $_[0]."\n";
+      }
+      $die_str.= "Last res: \n".$self->last_res;
+      die $die_str;
+   };
+  
   $xs->XMLin($xml);
 }
 
@@ -112,9 +127,31 @@ sub _query {
   my ($self, $method, $route, $params) = @_;
   $params->{e} = $route;
   my %hash = (%{$self->_prepare_request}, %$params);
-  my $xml = $self->{ua}->$method($self->{auth_hash}{api_url} => form => \%hash)->res->body;
-  $xml =~  s/([\x00-\x09]+)|([\x0B-\x1F]+)//g;
-  return $xml;
+  
+  my $res = $self->{ua}->$method($self->{auth_hash}{api_url} => form => \%hash)->res;
+  
+  if  ($res->is_success)  {
+    my $xml = $res->body;
+    $self->{last_res} = $res;
+    # $xml =~  s/([\x00-\x09]+)|([\x0B-\x1F]+)//g;
+    return $xml;
+  } 
+  elsif ($res->code == 301) { 
+    die "Moved Permanently: ".$res->headers->location;
+  }
+  else { 
+    die "HTTP Error: ".$res->code;
+  }
+}
+
+=method last_res
+
+    Get latest result from user agent. For debug purpose
+
+=cut
+
+sub last_res { 
+    shift->{last_res};
 }
 
 sub get { 
